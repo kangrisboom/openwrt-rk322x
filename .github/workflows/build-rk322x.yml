@@ -1,0 +1,51 @@
+name: Build OpenWrt for HK1 Mini (rk322x)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk \
+            gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev \
+            python3-distutils rsync unzip zlib1g-dev file wget python3
+
+      - name: Cache OpenWrt build
+        uses: actions/cache@v4
+        with:
+          path: |
+            build_dir
+            dl
+          key: ${{ runner.os }}-openwrt-${{ hashFiles('**/feeds.conf', '**/feeds.conf.default') }}
+
+      - name: Update & install feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Configure build for rk322x
+        run: |
+          make defconfig
+          # Pilih target secara otomatis
+          sed -i 's/CONFIG_TARGET_.*=y/# &/' .config
+          echo "CONFIG_TARGET_rk322x=y" >> .config
+          echo "CONFIG_TARGET_rk322x_DEVICE_hk1_mini=y" >> .config
+          make defconfig
+
+      - name: Build firmware
+        run: |
+          make -j$(nproc) V=s
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-rk322x-firmware
+          path: bin/targets/rk322x/*/*.img
