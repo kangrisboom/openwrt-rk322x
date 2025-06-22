@@ -1,0 +1,19 @@
+. /lib/functions/leds.sh
+. /lib/functions/uci-defaults.sh
+
+board=$(board_name)
+
+board_config_update
+
+case "$board" in
+hk1mini,rk3229)
+    # Contoh: LED power (ganti nama dan trigger sesuai device tree Anda)
+    ucidef_set_led_default "power" "Power" "blue:power" "1"
+    # Tambahkan LED lain jika ada, misal:
+    # ucidef_set_led_netdev "wifi" "WIFI" "green:wifi" "wlan0"
+    ;;
+esac
+
+board_config_flush
+
+exit 0

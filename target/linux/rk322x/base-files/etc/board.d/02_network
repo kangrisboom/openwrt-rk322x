@@ -1,0 +1,36 @@
+. /lib/functions/uci-defaults.sh
+. /lib/functions/system.sh
+
+rk3229_setup_interfaces() {
+    local board="$1"
+
+    case "$board" in
+    hk1mini,rk3229)
+        ucidef_set_interface_lan 'eth0'
+        ;;
+    *)
+        ucidef_set_interface_lan 'eth0'
+        ;;
+    esac
+}
+
+rk3229_setup_macs() {
+    local board="$1"
+    local lan_mac=""
+
+    case "$board" in
+    hk1mini,rk3229)
+        lan_mac=$(cat /sys/class/net/eth0/address)
+        ;;
+    esac
+
+    [ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
+}
+
+board_config_update
+board=$(board_name)
+rk3229_setup_interfaces $board
+rk3229_setup_macs $board
+board_config_flush
+
+exit 0
