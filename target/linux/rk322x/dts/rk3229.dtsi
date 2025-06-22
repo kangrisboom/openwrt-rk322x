@@ -1,0 +1,22 @@
+/dts-v1/;
+
+#include "skeleton.dtsi"
+
+/ {
+    compatible = "rockchip,rk3229";
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    cpus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        cpu@0 {
+            device_type = "cpu";
+            compatible = "arm,cortex-a7";
+            reg = <0>;
+        };
+        // Tambahkan cpu@1, cpu@2, cpu@3 jika quad-core
+    };
+
+    // Tambahkan node lain: memory, clocks, soc, dsb
+};
